@@ -1,0 +1,13 @@
+---
+title: "Homework 5"
+author: "Eric Gleiter"
+date: "4/10/2020"
+output: html_document
+---
+**Homework 5**
+Eric Gleiter
+DS202
+
+*Note all set up and library/package loading and checking is omitted on the html*
+
+**Question 1**
