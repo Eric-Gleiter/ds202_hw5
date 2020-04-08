@@ -9,5 +9,82 @@ Eric Gleiter
 DS202
 
 *Note all set up and library/package loading and checking is omitted on the html*
+```{r include=FALSE}
+if (!require("tidyverse")) {
+install.packages("tidyverse")
+}
+if (!require("dplyr")) {
+install.packages("dplyr")
+}
+if (!require("ggplot2")) {
+install.packages("ggplot2")
+}
+if (!require("readr")) {
+install.packages("readr")
+}
 
-**Question 1**
+
+```
+
+```{r include=FALSE result = HIDE}
+library(tidyverse)
+library(ggplot2)
+library(dbplyr)
+library(readr)
+
+Ames <- read_csv("2019_Iowa_Liquor_Sales.csv")
+
+
+```
+
+
+**Question 2 a-c**
+```{r}
+AmesClean <- Ames %>%
+  mutate(`Store Location` = sub("POINT ","",`Store Location`)) %>%
+  mutate(`Store Location` = sub(".","",`Store Location`)) %>%
+  mutate(`Store Location` = sub(")","",`Store Location`)) %>%
+  separate(`Store Location`,c("long","lat"), sep=" ") %>%
+  mutate(long = as.numeric(long)) %>%
+  mutate(lat = as.numeric(lat)) %>%
+  mutate(oldDate = Date) %>% #kept the old date to make question 4 easier
+  separate(Date, c("Month","Day","Year"), sep = "/")
+```
+
+**Question 3a**
+```{r}
+AmesNoNull <- AmesClean %>%
+  filter(!is.na(long)) ##removes null store locations
+
+ggplot(AmesNoNull, aes(x = long, y=lat)) +
+  geom_point() + 
+  xlab("Longitude") + 
+  ylab("Latitude") +
+  labs(title = "Store Locations")
+```
+
+**Question 3b**
+```{r}
+ggplot(AmesClean %>% filter(`Category Name` != ""), aes(`Category Name`, `Volume Sold (Liters)`)) +
+  geom_col() + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .02)) +
+  xlab("Type of Liquor") +
+  labs(title = "Volume Sold for each type of Liquor")
+  
+```
+
+**Question 4**
+```{r}
+q4 <- AmesClean %>%
+  mutate(oldDate = as.Date(mdy(oldDate))) %>%
+  group_by(oldDate) %>%
+  summarise(volumeSold = sum(`Volume Sold (Liters)`), 
+    numSales = sum(`Bottles Sold`),
+    moneyMade = sum(`Sale (Dollars)`))
+
+ggplot(q4,aes(x=oldDate,y=volumeSold)) +
+  geom_line() +
+  scale_x_date()
+```
+
+
