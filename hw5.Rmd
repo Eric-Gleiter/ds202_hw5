@@ -8,7 +8,7 @@ output: html_document
 Eric Gleiter
 DS202
 
-*Note all set up and library/package loading and checking is omitted on the html*
+*Note all set up and library/package loading and checking is omitted on the html for readability*
 ```{r include=FALSE}
 if (!require("tidyverse")) {
 install.packages("tidyverse")
@@ -50,8 +50,11 @@ AmesClean <- Ames %>%
   separate(`Store Location`,c("long","lat"), sep=" ") %>%
   mutate(long = as.numeric(long)) %>%
   mutate(lat = as.numeric(lat)) %>%
-  mutate(oldDate = Date) %>% #kept the old date to make question 4 easier
-  separate(Date, c("Month","Day","Year"), sep = "/")
+  mutate(oldDate = Date) %>% #kept the old date to make visualizing question 4 easier
+  separate(Date, c("Month","Day","Year"), sep = "/") %>%
+  mutate(Day = as.numeric(Day)) %>%
+  mutate(Month = as.numeric(Month)) %>%
+  mutate(Year = as.numeric(Year))
 ```
 
 **Question 3a**
@@ -78,6 +81,7 @@ ggplot(AmesClean %>% filter(`Category Name` != ""), aes(`Category Name`, `Volume
 
 **Question 4**
 ```{r}
+#Visual Summary for the yearly trends at a glance
 q4 <- AmesClean %>%
   mutate(oldDate = as.Date(mdy(oldDate))) %>%
   group_by(oldDate) %>%
@@ -105,17 +109,42 @@ ggplot(q4,aes(oldDate, numSales)) +
   xlab("Date") + 
   ylab("Total Bottles Sold") +
   labs(title = "Daily Amount of Bottles Sold for 2019")
+
+#Non visual summary
+nonVisualq4 <- AmesClean %>%
+  group_by(Day,Month,Year) %>%
+  summarise(volumeSold = sum(`Volume Sold (Liters)`), 
+    numSales = sum(`Bottles Sold`),
+    moneyMade = sum(`Sale (Dollars)`)) %>%
+  arrange(Month,Day,Year)
+
+head(nonVisualq4)
 ```
+I want to note that I chose to interpert a sale as a bottle sold. I chose this because it appears that many times hyvee reported 12 out of 12 bottles of vodka sold at once this feels like the worker was just grouping the weeks sales as I don't know anyone who would reguraly purchase every bottle of a certain vodka in a pack. one could have chosen to use the number of rows per day as the number of sales but that felt like to severe of an underestimate for me. 
 
 **Question 5** 
 ```{r}
+ggplot(AmesClean, aes(x=Day,y=`Volume Sold (Liters)`)) +
+  geom_point() +
+  facet_wrap(vars(Month)) + 
+  geom_smooth(method = "lm") +
+  theme(axis.text.x = element_blank()) +
+  labs(title = "Volume Sold by Day faceted by Month")
 
 ```
+
+Since using Geom_smooth did not appear to work to help discover trends. I will only discuss trends I see myself. First is that the sale reports all occur 4-5 times a month suggesting stores only report once a week. The second more important trend we can see is an uptike in sales during the school year looking at the end of july when students (espically those in the greeks ) start moving back to ames we see a massive amount of sales occuring. and then we see more sales occuring (not high volume sales but more sales overall).
 
 
 **Question 6**
 ```{r}
-
+homeGames <- c("8/31/2019","9/14/2019","9/21/2019","10/5/2019","10/26/2019","11/16/2019","11/23/2019")
+ggplot(AmesClean, aes(x=Day,y=`Volume Sold (Liters)`)) +
+  geom_col() +
+  facet_wrap(vars(Month)) + 
+  theme(axis.text.x = element_blank()) +
+  labs(title = "Volume Sold by Day faceted by Month")
 ```
 
+The actual dates are not in our dataset (check using filter()) but we can look at the months and see trends on the weeks that have a home game that week is usually a peak or unusally high sale week. This does not include october however, probably due to "Halloweekend" parties that occur for the last week of the month hiding the peak from the 10/26 football game. 
 
