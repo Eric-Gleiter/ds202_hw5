@@ -85,9 +85,37 @@ q4 <- AmesClean %>%
     numSales = sum(`Bottles Sold`),
     moneyMade = sum(`Sale (Dollars)`))
 
-ggplot(q4,aes(x=oldDate,y=volumeSold)) +
-  geom_line() +
-  scale_x_date()
+ggplot(q4,aes(oldDate, volumeSold)) +
+  geom_col() +  #using geom_col at the request of the TA it seems to work much better than line
+  scale_x_date() +
+  xlab("Date") + 
+  ylab("Volume Sold (Liters)") +
+  labs(title = "Daily Volume Sold for 2019")
+
+ggplot(q4,aes(oldDate, moneyMade)) +
+  geom_col() +
+  scale_x_date() +
+  xlab("Date") + 
+  ylab("Money Spent") +
+  labs(title = "Daily Money Spent on Liqour for 2019")
+
+ggplot(q4,aes(oldDate, numSales)) +
+  geom_col() +
+  scale_x_date() +
+  xlab("Date") + 
+  ylab("Total Bottles Sold") +
+  labs(title = "Daily Amount of Bottles Sold for 2019")
+```
+
+**Question 5** 
+```{r}
+
+```
+
+
+**Question 6**
+```{r}
+
 ```
 
 
